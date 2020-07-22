@@ -1,39 +1,55 @@
 import React, { useState } from 'react';
 import { Jumbotron, Button, Form, Col, Spinner, Alert, Modal } from 'react-bootstrap';
+import { A } from 'hookrouter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle, faSearch, faCheckCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, faSearch, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import HEADER from './utils/header';
 import FOOTER from './utils/footer';
+import DeleteButton from './components/delete-confirmation';
 import ListaUFs from './utils/lista-ufs';
 import ListaEstadoCivil from './utils/lista-estado-civil';
 import ListaLogradouros from './utils/lista-logradouros';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import { render } from '@testing-library/react';
+import InputMask from './components/input-mask';
 
 function Clientes() {
 
-  const [validatedForm, setvalidatedForm] = useState(false);
+  const [validateForm, setValidateForm] = useState(false);
 
   const [msgAlert, setMsgAlert] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [typeAlert, setTypeAlert] = useState('success');
 
   const [idCliente, setIdCliente] = useState(0);
-  const [cpfCnpj, setcpfCnpj] = useState('');
-  const [nomeCliente, setnomeCliente] = useState('');
-  const [tipoPessoa, settipoPessoa] = useState('');
+  const [nomeCliente, setNomeCliente] = useState('');
+  const [tipoPessoa, setTipoPessoa] = useState('');
+  const [cpfCnpj, setCpfCnpj] = useState('');
   const [rg, setRg] = useState('');
   const [cnh, setCnh] = useState('');
   const [cep, setCep] = useState('');
-  const [endereco, setEndereco] = useState('');
+  const [nacionalidade, setNacionalidade] = useState('');
+  const [estadoCivil, setEstadoCivil] = useState('');
+  const [profissao, setProfissao] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
+  const [tipoLogradouro, setTipoLogradouro] = useState('');
+  const [logradouro, setLogradouro] = useState('');
   const [numero, setNumero] = useState('');
   const [complemento, setComplemento] = useState('');
+  const [bairro, setBairro] = useState('');  
   const [cidade, setCidade] = useState('');
   const [uf, setUf] = useState('');
+  const [telefoneResidencial, setTelefoneResidencial] = useState('');
+  const [telefoneComercial, setTelefoneComercial] = useState('');
+  const [telefoneCelular, setTelefoneCelular] = useState('');
+  const [email, setEmail] = useState('');
+  const [dataCadastro, setDataCadastro] = useState('');
+  const [idUsuario, setIdUsuario] = useState(0);
 
-  function testef(){
-    setMsgAlert('delicioso');
-    setShowAlert(true);
+  function insereCliente(event){
+    event.preventDefault(); //impede o submit
+    setValidateForm(true);
   }
 
   return (
@@ -43,7 +59,11 @@ function Clientes() {
           {msgAlert}
       </Alert>
       <div className="div-style">
-        <Form noValidade validated={validatedForm}>
+        <Form  
+          validated={validateForm}
+          noValidade
+          onSubmit={insereCliente}
+          >
           <Form.Row>
             <Col sm="3">
               <h4>Clientes</h4>
@@ -51,29 +71,21 @@ function Clientes() {
             <Col sm="9" className="text-right">
               <Button 
                 variant="primary" 
-                type ="submit" 
-                onClick={testef}
                 id="btnNovo">
                   <FontAwesomeIcon icon={faPlusCircle} />
                   &nbsp;Novo Cliente</Button>&nbsp;
               <Button 
                 variant="primary" 
-                type ="submit" 
-                id="btnNovo">
+                id="btnPesquisar">
                   <FontAwesomeIcon icon={faSearch} />
                   &nbsp;Pesquisar</Button>&nbsp;
               <Button 
                 variant="success" 
                 type ="submit" 
-                id="btnNovo">
+                id="btnSalvar">
                   <FontAwesomeIcon icon={faCheckCircle} />
-                  &nbsp;Salvar</Button> &nbsp;                                 
-              <Button 
-                variant="danger" 
-                type ="submit" 
-                id="btnNovo">
-                  <FontAwesomeIcon icon={faTrash} />
-                  &nbsp;Excluir</Button>                                                      
+                  &nbsp;Salvar</Button>&nbsp;
+              <DeleteButton />
             </Col>            
           </Form.Row>
           <br />
@@ -103,7 +115,7 @@ function Clientes() {
                   </Col>                         
                   <Col sm="2">
                     <Form.Label>Data Nascimento</Form.Label><br />
-                    <Form.Control
+                    <Form.Control type="date"
                       id="txtDataNascimento"
                       required />
                   </Col>                  
@@ -112,22 +124,19 @@ function Clientes() {
                   <Col sm="2">
                     <Form.Label>Nacionalidade</Form.Label><br />
                     <Form.Control
-                      id="txtNacionalidade"
-                      required />
+                      id="txtNacionalidade" />
                   </Col>
                   <Col sm="2">
                     <Form.Label>Estado Civil</Form.Label><br />
                     <Form.Control as ="select" 
-                      id="rbEstadoCivil"
-                      required>
+                      id="rbEstadoCivil">
                       <ListaEstadoCivil />
                     </Form.Control>
                   </Col>
                   <Col sm="4">
                     <Form.Label>Profissão</Form.Label><br />
                     <Form.Control
-                      id="txtProfissao"
-                      required />
+                      id="txtProfissao"/>
                   </Col>
               </Form.Row>
               <br /> 
@@ -138,8 +147,12 @@ function Clientes() {
               <Form.Row>
                 <Col sm="2">
                     <Form.Label>CPF/CNPJ</Form.Label><br />
-                    <Form.Control 
+                    <InputMask
                       id="txtCpfCnpj"
+                      minlength="14"
+                      mask={["999.999.999-99", "99.999.999/9999-99"]}
+                      onChange={setCpfCnpj}
+                      value={cpfCnpj}
                       required />
                 </Col>
                 <Col sm="2">
@@ -165,8 +178,13 @@ function Clientes() {
               <Form.Row>
                 <Col sm="2">
                     <Form.Label>CEP</Form.Label><br />
-                    <Form.Control 
-                      id="txtCEP"
+                    <InputMask
+                      id="txtCep"
+                      minlength="9"
+                      maxlength="9"
+                      mask={"99999-999"}
+                      onChange={setCep}
+                      value={cep}
                       required />
                 </Col>
                 <Col sm="2">
@@ -194,8 +212,7 @@ function Clientes() {
                 <Col sm="2">
                   <Form.Label>Complemento</Form.Label><br />
                   <Form.Control 
-                  id="txtComplemento"
-                  required />
+                  id="txtComplemento"/>
                 </Col>
                 <Col sm="4">
                     <Form.Label>Cidade</Form.Label><br />
@@ -220,27 +237,39 @@ function Clientes() {
               <Form.Row>
                 <Col sm="2">
                     <Form.Label>Tel. Residencial</Form.Label><br />
-                    <Form.Control 
+                    <InputMask
                       id="txtTelefoneResidencial"
-                      required />
+                      minlength="14"
+                      maxlength="15"
+                      mask={["(99) 9999-9999", "(99) 99999-9999"]}
+                      onChange={setTelefoneResidencial}
+                      value={telefoneResidencial} />                      
                 </Col>
                 <Col sm="2">
                     <Form.Label>Tel. Celular</Form.Label><br />
-                    <Form.Control 
+                    <InputMask
                       id="txtTelefoneCelular"
-                      required />
+                      minlength="14"
+                      maxlength="15"
+                      mask={["(99) 9999-9999", "(99) 99999-9999"]}
+                      onChange={setTelefoneCelular}
+                      value={telefoneCelular} />
                 </Col>
                 <Col sm="2">
                   <Form.Label>Tel. Comercial</Form.Label><br />
-                  <Form.Control 
-                    id="txtTelefoneComercial"
-                    required />
+                    <InputMask
+                      id="txtTelefoneComercial"
+                      minlength="14"
+                      maxlength="15"
+                      mask={["(99) 9999-9999", "(99) 99999-9999"]}
+                      onChange={setTelefoneComercial}
+                      value={telefoneComercial} />                    
                 </Col>
                 <Col sm="6">
                   <Form.Label>E-mail</Form.Label><br />
-                  <Form.Control 
-                    id="txtEmail"
-                    required />
+                  <Form.Control type="email"
+                    minlength="6"
+                    id="txtEmail"/>
                 </Col>            
               </Form.Row>
             </Tab>              
